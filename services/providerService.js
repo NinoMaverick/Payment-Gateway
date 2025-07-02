@@ -1,33 +1,33 @@
+const pickProvider = require('../utils/pickProvider');
 const paystackAdapter = require('../adapters/paystackAdapter');
 const flutterwaveAdapter = require('../adapters/flutterwaveAdapter');
 
-// Initiate payment via a provider (Paystack/Flutterwave)
+// Initiate payment with a randomly selected provider
 const initiatePayment = async (paymentData) => {
-  const randomProvider = Math.random() < 0.5 ? 'Paystack' : 'Flutterwave'; // Randomly select a provider
+  const provider = pickProvider(); // Pick Paystack or Flutterwave at payment start
+
   let response;
 
-  if (randomProvider === 'Paystack') {
+  if (provider === 'Paystack') {
     response = await paystackAdapter.initiatePayment(paymentData);
-  } else {
+  } else if (provider === 'Flutterwave') {
     response = await flutterwaveAdapter.initiatePayment(paymentData);
   }
 
-  return { provider: randomProvider, response };
+  return { provider, response };
 };
 
-// Retrieve payment details (status)
-const retrievePayment = async (paymentId) => {
-  // Retrieve payment information based on provider
-  const randomProvider = Math.random() < 0.5 ? 'Paystack' : 'Flutterwave'; // Randomly select a provider
+// Retrieve payment information — based on original provider (passed as argument)
+const retrievePayment = async (externalReference, provider) => {
   let response;
 
-  if (randomProvider === 'Paystack') {
-    response = await paystackAdapter.verifyPayment(paymentId); 
-  } else {
-    response = await flutterwaveAdapter.verifyPayment(paymentId); 
+  if (provider === 'Paystack') {
+    response = await paystackAdapter.verifyPayment(externalReference);
+  } else if (provider === 'Flutterwave') {
+    response = await flutterwaveAdapter.verifyPayment(externalReference);
   }
 
-  return { provider: randomProvider, response };
+  return { response };
 };
 
 module.exports = {

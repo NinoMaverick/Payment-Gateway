@@ -1,49 +1,44 @@
 const mongoose = require('mongoose');
 
-const paymentSchema = new mongoose.Schema(
-  {
-    amount: {
-      type: mongoose.Schema.Types.Decimal128,
-      required: true,
-    },
-    currency: {
-      type: String,
-      required: true,
-    },
-    status: {
-      type: String,
-      enum: ['succeeded', 'failed'],  
-      required: true,  
-    },
-    description: {
-      type: String,
-      required: true,
-    },
-    customer_email: {
-      type: String,
-      required: true,
-    },
-    customer_name: {
-      type: String,
-      required: true,
-    },
-    payment_method: {
-      type: Object,  // Stores details of the payment method, like card info
-      required: true,
-    },
-    provider: {
-      type: String,  // Which provider processed the payment
-      required: true,
-    },
-    provider_reference: {
-      type: String,  // Transaction reference from the payment provider
-    },
+const paymentSchema = new mongoose.Schema({
+  paymentId: {
+    type: String,
+    required: true,
+    unique: true,
   },
-  {
-    timestamps: true,  
+  provider: {
+    type: String,
+    required: true,
+    enum: ['Paystack', 'Flutterwave'],
+  },
+  externalReference: {
+    type: String,
+    required: true,
+  },
+  amount: {
+    type: Number,
+    required: true,
+  },
+  currency: {
+    type: String,
+    required: true,
+  },
+  customer_email: {
+    type: String,
+    required: true,
+  },
+  customer_name: {
+    type: String,
+    required: true,
+  },
+  status: {
+    type: String,
+    default: 'pending', // 'pending', 'success', 'failed'
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
   }
-);
+});
 
-const Payment = mongoose.model('Payment', paymentSchema);
-
-module.exports = Payment;
+module.exports = mongoose.model('Payment', paymentSchema);

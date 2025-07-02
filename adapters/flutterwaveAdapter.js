@@ -1,4 +1,3 @@
-// flutterwaveAdapter.js
 const axios = require('axios');
 const FLUTTERWAVE_SECRET_KEY = process.env.FLUTTERWAVE_SECRET_KEY;
 
@@ -11,7 +10,7 @@ const initiatePayment = async (paymentData) => {
     const response = await axios.post(
       'https://api.flutterwave.com/v3/payments',
       {
-        tx_ref: paymentData.id,
+        tx_ref: paymentData.id, 
         amount: paymentData.amount,
         currency: paymentData.currency,
         redirect_url: paymentData.redirect_url || 'https://your-default-redirect.com',
@@ -33,9 +32,13 @@ const initiatePayment = async (paymentData) => {
     );
 
     return {
-      authorization_url: response.data.data.link,
-      reference: response.data.data.tx_ref,
-    };
+      provider: 'Flutterwave',
+      response: {
+        authorization_url: response.data.data.link,
+        reference: paymentData.id, // 💥 Use your own tx_ref
+        status: 'pending',
+      }
+    };    
   } catch (error) {
     console.error('Flutterwave initiate error:', error.response?.data || error.message);
     throw new Error(error.response?.data?.message || 'Flutterwave payment failed');
