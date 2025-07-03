@@ -4,11 +4,12 @@ const providerService = require('../services/providerService');
 // Initiate a payment
 const makePayment = async (req, res) => {
   try {
-    const { amount, currency, customer_email, customer_name } = req.body;
+    const { amount, currency } = req.body;
+    const customer_email = req.user.email // Authenticated user
 
     // 1. Validate required fields    
-    if (!amount || !currency || !customer_email || !customer_name) {
-      return res.status(400).json({ message: 'Missing required fields' });
+    if (!amount || !currency) {
+      return res.status(400).json({ message: 'Amount and currency are required' });
     }
 
     // 2. Create a unique internal payment ID
@@ -19,9 +20,7 @@ const makePayment = async (req, res) => {
       amount,
       currency,
       customer_email,
-      customer_name,
       id: paymentId,
-      // Redirect URL might be required by providers even if you don't use it visibly
       redirect_url: 'https://yourfrontend.com/payment-success', 
     };
 
@@ -31,8 +30,8 @@ const makePayment = async (req, res) => {
     console.log('🔵 Provider raw response:', response);
 
     // 5. Determine status based on provider response
-    const status = response.status === 'success' ? 'success' : 'pending'; // depending on response
-
+    const status = response.status === 'success' ? 'success' : 'failed';
+    
     // 6. Save payment record to your database
     await Payment.create({
       paymentId,
@@ -62,7 +61,7 @@ const makePayment = async (req, res) => {
   }
 };
 
-// Get payment status from your database (without revealing provider info)
+// Get payment status from database (without revealing provider info)
 const retrievePayment = async (req, res) => {
   try {
     const { paymentId } = req.params;
@@ -97,13 +96,9 @@ const retrievePayment = async (req, res) => {
 };
 
 // Get transaction logs for a customer (without exposing provider)
-const getTransactionLogs = async (req, res) => {
+const getMyTransactionLogs = async (req, res) => {
   try {
-    const { customer_email } = req.query; // client sends email to fetch their transactions
-
-    if (!customer_email) {
-      return res.status(400).json({ message: 'Customer email is required' });
-    }
+    const customer_email = req.user.email; // 🔥 From auth middleware
 
     // 1. Fetch all transactions for the customer
     const transactions = await Payment.find({ customer_email });
@@ -132,5 +127,5 @@ const getTransactionLogs = async (req, res) => {
 module.exports = {
   makePayment,
   retrievePayment,
-  getTransactionLogs,
+  getMyTransactionLogs,
 };
