@@ -5,7 +5,7 @@ if (!FLUTTERWAVE_SECRET_KEY) {
   throw new Error('FLUTTERWAVE_SECRET_KEY is not set in environment variables.');
 }
 
-const initiatePayment = async (paymentData) => {
+const makePayment = async (paymentData) => {
   try {
     const response = await axios.post(
       'https://api.flutterwave.com/v3/payments',
@@ -45,7 +45,7 @@ const initiatePayment = async (paymentData) => {
   }
 };
 
-const verifyPayment = async (paymentId) => {
+const retrievePayment = async (paymentId) => {
   try {
     const response = await axios.get(
       `https://api.flutterwave.com/v3/transactions/${paymentId}/verify`,
@@ -66,4 +66,4 @@ const verifyPayment = async (paymentId) => {
   }
 };
 
-module.exports = { initiatePayment, verifyPayment };
+module.exports = { makePayment, retrievePayment };
