@@ -3,15 +3,15 @@ const paystackAdapter = require('../adapters/paystackAdapter');
 const flutterwaveAdapter = require('../adapters/flutterwaveAdapter');
 
 // Initiate payment with a randomly selected provider
-const initiatePayment = async (paymentData) => {
+const makePayment = async (paymentData) => {
   const provider = pickProvider(); // Pick Paystack or Flutterwave at payment start
 
   let response;
 
   if (provider === 'Paystack') {
-    response = await paystackAdapter.initiatePayment(paymentData);
+    response = await paystackAdapter.makePayment(paymentData);
   } else if (provider === 'Flutterwave') {
-    response = await flutterwaveAdapter.initiatePayment(paymentData);
+    response = await flutterwaveAdapter.makePayment(paymentData);
   }
 
   return { provider, response };
@@ -22,15 +22,15 @@ const retrievePayment = async (externalReference, provider) => {
   let response;
 
   if (provider === 'Paystack') {
-    response = await paystackAdapter.verifyPayment(externalReference);
+    response = await paystackAdapter.retrievePayment(externalReference);
   } else if (provider === 'Flutterwave') {
-    response = await flutterwaveAdapter.verifyPayment(externalReference);
+    response = await flutterwaveAdapter.retrievePayment(externalReference);
   }
 
   return { response };
 };
 
 module.exports = {
-  initiatePayment,
+  makePayment,
   retrievePayment,
 };

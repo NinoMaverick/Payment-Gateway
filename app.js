@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const paymentRoutes = require('./routes/paymentRoutes'); 
+const paymentRoutes = require('./routes/paymentRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 
@@ -17,18 +18,9 @@ mongoose.connect(process.env.MONGO_URI)
 // Middleware
 app.use(express.json());
 
-// Logging middleware
-app.use((req, res, next) => {
-  console.log(`${req.method} ${req.originalUrl}`);
-  next();
-});
 
-// Root route
-app.get('/', (req, res) => {
-  res.send('API is running...');
-});
-
-// Routes
+// mount routes
 app.use('/api/v1/payments', paymentRoutes); 
+app.use('/api/v1/auth', authRoutes);
 
 module.exports = app;

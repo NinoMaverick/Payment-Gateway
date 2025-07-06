@@ -25,7 +25,7 @@ const makePayment = async (req, res) => {
     };
 
     // 4. Call service to pick provider and initiate payment
-    const { provider, response } = await providerService.initiatePayment(paymentData);
+    const { provider, response } = await providerService.makePayment(paymentData);
     console.log('🔵 Provider selected:', provider);
     console.log('🔵 Provider raw response:', response);
 

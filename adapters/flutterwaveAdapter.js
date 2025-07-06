@@ -7,10 +7,11 @@ if (!FLUTTERWAVE_SECRET_KEY) {
 
 const makePayment = async (paymentData) => {
   try {
-    const response = await axios.post(
+    // 1. Initiate payment
+    const initResponse = await axios.post(
       'https://api.flutterwave.com/v3/payments',
       {
-        tx_ref: paymentData.id, 
+        tx_ref: paymentData.id,
         amount: paymentData.amount,
         currency: paymentData.currency,
         redirect_url: paymentData.redirect_url || 'https://your-default-redirect.com',
@@ -31,24 +32,34 @@ const makePayment = async (paymentData) => {
       }
     );
 
-    return {
-      provider: 'Flutterwave',
-      response: {
-        authorization_url: response.data.data.link,
-        reference: paymentData.id, // 💥 Use your own tx_ref
-        status: 'pending',
+    const reference = paymentData.id; // your tx_ref
+
+    // 2. Immediately verify the payment
+    const verifyResponse = await axios.get(
+      `https://api.flutterwave.com/v3/transactions/${reference}/verify`,
+      {
+        headers: {
+          Authorization: `Bearer ${FLUTTERWAVE_SECRET_KEY}`,
+        },
       }
-    };    
+    );
+
+    const status = verifyResponse.data.data.status;
+
+    return {
+      reference,
+      status: status === 'successful' ? 'success' : 'failed',
+    };
   } catch (error) {
-    console.error('Flutterwave initiate error:', error.response?.data || error.message);
+    console.error('Flutterwave makePayment error:', error.response?.data || error.message);
     throw new Error(error.response?.data?.message || 'Flutterwave payment failed');
   }
 };
 
-const retrievePayment = async (paymentId) => {
+const retrievePayment = async (reference) => {
   try {
     const response = await axios.get(
-      `https://api.flutterwave.com/v3/transactions/${paymentId}/verify`,
+      `https://api.flutterwave.com/v3/transactions/${reference}/verify`,
       {
         headers: {
           Authorization: `Bearer ${FLUTTERWAVE_SECRET_KEY}`,
@@ -57,11 +68,11 @@ const retrievePayment = async (paymentId) => {
     );
 
     return {
-      status: response.data.data.status,
+      status: response.data.data.status === 'successful' ? 'success' : 'failed',
       gateway_response: response.data.data.processor_response,
     };
   } catch (error) {
-    console.error('Flutterwave verification error:', error.response?.data || error.message);
+    console.error('Flutterwave retrievePayment error:', error.response?.data || error.message);
     throw new Error(error.response?.data?.message || 'Error verifying payment with Flutterwave');
   }
 };
