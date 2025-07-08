@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const paymentRoutes = require('./routes/paymentRoutes');
 const authRoutes = require('./routes/authRoutes');
-const { errorHandler } = require('./middleware/errorMiddleware');
+const errorHandler = require('./middleware/errorMiddleware');
 
 const app = express();
 
@@ -18,7 +18,7 @@ app.use(express.json());
 app.use('/api/v1/payments', paymentRoutes);
 app.use('/api/v1/auth', authRoutes);
 
-// Error handling middleware AFTER routes
+// Error handling middleware
 app.use(errorHandler);
 
 module.exports = app;
