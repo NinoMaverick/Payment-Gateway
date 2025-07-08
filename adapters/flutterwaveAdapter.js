@@ -7,8 +7,7 @@ if (!FLUTTERWAVE_SECRET_KEY) {
 
 const makePayment = async (paymentData) => {
   try {
-    // 1. Initiate payment
-    const initResponse = await axios.post(
+    const response = await axios.post(
       'https://api.flutterwave.com/v3/payments',
       {
         tx_ref: paymentData.id,
@@ -17,7 +16,6 @@ const makePayment = async (paymentData) => {
         redirect_url: paymentData.redirect_url || 'https://your-default-redirect.com',
         customer: {
           email: paymentData.customer_email,
-          name: paymentData.customer_name,
         },
         payment_options: 'card',
         meta: {
@@ -32,23 +30,13 @@ const makePayment = async (paymentData) => {
       }
     );
 
-    const reference = paymentData.id; // your tx_ref
-
-    // 2. Immediately verify the payment
-    const verifyResponse = await axios.get(
-      `https://api.flutterwave.com/v3/transactions/${reference}/verify`,
-      {
-        headers: {
-          Authorization: `Bearer ${FLUTTERWAVE_SECRET_KEY}`,
-        },
-      }
-    );
-
-    const status = verifyResponse.data.data.status;
-
     return {
-      reference,
-      status: status === 'successful' ? 'success' : 'failed',
+      provider: 'Flutterwave',
+      response: {
+        authorization_url: response.data.data.link,
+        reference: paymentData.id,
+        status: 'success',
+      },
     };
   } catch (error) {
     console.error('Flutterwave makePayment error:', error.response?.data || error.message);
@@ -56,10 +44,10 @@ const makePayment = async (paymentData) => {
   }
 };
 
-const retrievePayment = async (reference) => {
+const retrievePayment = async (paymentId) => {
   try {
     const response = await axios.get(
-      `https://api.flutterwave.com/v3/transactions/${reference}/verify`,
+      `https://api.flutterwave.com/v3/transactions/${paymentId}/verify`,
       {
         headers: {
           Authorization: `Bearer ${FLUTTERWAVE_SECRET_KEY}`,
@@ -68,7 +56,7 @@ const retrievePayment = async (reference) => {
     );
 
     return {
-      status: response.data.data.status === 'successful' ? 'success' : 'failed',
+      status: response.data.data.status,
       gateway_response: response.data.data.processor_response,
     };
   } catch (error) {

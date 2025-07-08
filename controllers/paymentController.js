@@ -26,11 +26,14 @@ const makePayment = async (req, res) => {
 
     // 4. Call service to pick provider and initiate payment
     const { provider, response } = await providerService.makePayment(paymentData);
-    console.log('🔵 Provider selected:', provider);
-    console.log('🔵 Provider raw response:', response);
+    const { status: paymentStatus, reference } = response.response;
+
+    // console.log('🔵 Provider selected:', provider);
+    // console.log('🔵 Provider raw response:', response);
+    // console.log('🟠 response.status:', response?.response?.status); 
 
     // 5. Determine status based on provider response
-    const status = response.status === 'success' ? 'success' : 'failed';
+    const status = paymentStatus === 'success' ? 'success' : 'failed';
     
     // 6. Save payment record to your database
     await Payment.create({
@@ -40,7 +43,6 @@ const makePayment = async (req, res) => {
       amount,
       currency,
       customer_email,
-      customer_name,
       status, // save the immediate status
     });
 
@@ -70,14 +72,13 @@ const retrievePayment = async (req, res) => {
       return res.status(400).json({ message: 'Payment ID is required' });
     }
 
-    // 1. Fetch the payment record from database
+    // Search by your custom paymentId field
     const payment = await Payment.findOne({ paymentId });
 
     if (!payment) {
       return res.status(404).json({ message: 'Payment not found' });
     }
 
-    // 2. Respond to client with simple information
     return res.status(200).json({
       message: 'Payment status retrieved successfully',
       data: {
@@ -94,6 +95,7 @@ const retrievePayment = async (req, res) => {
     return res.status(500).json({ message: 'Unable to retrieve payment', error: error.message });
   }
 };
+
 
 // Get transaction logs for a customer (without exposing provider)
 const getMyTransactionLogs = async (req, res) => {

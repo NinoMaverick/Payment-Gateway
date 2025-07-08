@@ -27,13 +27,10 @@ const paymentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  customer_name: {
-    type: String,
-    required: true,
-  },
   status: {
     type: String,
-    default: 'pending', // 'pending', 'success', 'failed'
+    required: true,
+    enum: ['success', 'failed'],
   },
   createdAt: {
     type: Date,
