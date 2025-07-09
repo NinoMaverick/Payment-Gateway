@@ -7,7 +7,7 @@ A modular backend API that supports Paystack and Flutterwave payments.
 - Provider switching (Paystack, Flutterwave)
 - Secure API key management
 - Centralized error handling
-- Deployed on Render
+- Deployed on Railway
 
 ## Tech Stack
 - Node.js,
