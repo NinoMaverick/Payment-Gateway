@@ -14,7 +14,12 @@ mongoose.connect(process.env.MONGO_URI)
 // Middleware
 app.use(express.json());
 
-// Mount routes BEFORE error handler
+// ✅ Root route
+app.get('/', (req, res) => {
+  res.send('🚀 Payment Gateway API is live. Use /api/v1/payments or /api/v1/auth.');
+});
+
+// Mount routes
 app.use('/api/v1/payments', paymentRoutes);
 app.use('/api/v1/auth', authRoutes);
 
