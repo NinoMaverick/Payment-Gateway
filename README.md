@@ -25,5 +25,15 @@ A modular backend API that supports Paystack and Flutterwave payments.
    - `PAYSTACK_SECRET_KEY`
 3. Run: `npm install && npm start`
 
+## Live API
+
+You can test the live API here:
+
+🔗 https://payment-gateway-production-117c.up.railway.app
+
+Example endpoints:
+- `POST /api/payment`
+- `GET /api/payment/:id`
+
 ## Postman Docs
 https://documenter.getpostman.com/view/41080497/2sB34eJ2Cw 
